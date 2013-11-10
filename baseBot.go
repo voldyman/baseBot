@@ -133,7 +133,7 @@ func main() {
 		fmt.Print("Password:")
 		bio := bufio.NewReader(os.Stdin)
 		line, _, _ := bio.ReadLine()
-		*password = line
+		*password = string(line)
 	}
 
 	key, err := getSession(*email, *password)
