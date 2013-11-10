@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"errors"
@@ -9,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type ResponseHandler func(string)
@@ -122,9 +124,16 @@ func main() {
 
 	flag.Parse()
 
-	if *email == "" || *password == "" {
+	if *email == "" {
 		flag.PrintDefaults()
 		return
+	}
+
+	if *password == "" {
+		fmt.Print("Password:")
+		bio := bufio.NewReader(os.Stdin)
+		line, _, _ := bio.ReadLine()
+		*password = line
 	}
 
 	key, err := getSession(*email, *password)
