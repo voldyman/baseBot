@@ -19,7 +19,7 @@ type IRCCResponse struct {
 	Success bool   `json: "success,string"`
 	Message string `json: "message,string"`
 	Session string `json: "session,omitempty"`
-        Token string   `json: "token,omitempty"`
+	Token   string `json: "token,omitempty"`
 }
 
 type StreamJSON struct {
@@ -35,19 +35,19 @@ type Config struct {
 var config Config
 
 func getSession(email, password string) (session string, err error) {
-     resp, err := http.Post("https://www.irccloud.com/chat/auth-formtoken", "", nil)
-     if err != nil {
-        panic(err)
-     }
+	resp, err := http.Post("https://www.irccloud.com/chat/auth-formtoken", "", nil)
+	if err != nil {
+		panic(err)
+	}
 
-     respBody, err := ioutil.ReadAll(resp.Body)
-     if err != nil {
-        panic(err)
-     }
-     var data IRCCResponse
-     json.Unmarshal(respBody, &data)
-     
-     	resp, err = http.PostForm("https://www.irccloud.com/chat/login",
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	var data IRCCResponse
+	json.Unmarshal(respBody, &data)
+
+	resp, err = http.PostForm("https://www.irccloud.com/chat/login",
 		url.Values{"email": {email}, "password": {password}, "token": {data.Token}})
 	if err != nil {
 		panic(err)
