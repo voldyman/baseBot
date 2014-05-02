@@ -46,18 +46,27 @@ func getSession(email, password string) (session string, err error) {
 	}
 	var data IRCCResponse
 	json.Unmarshal(respBody, &data)
+	
+	body := url.Values{}
+	
+	body.Add("email", email)
+	body.Add("password", password)
+	body.Add("token", data.Token)
 
-	resp, err = http.PostForm("https://www.irccloud.com/chat/login",
-		url.Values{"email": {email}, "password": {password}, "token": {data.Token}})
+	headers := make(http.Header)
+	headers.Add("x-auth-formtoken", data.Token)
+	headers.Add("User-Agent", "ninja")
+
+	resp, err = post("https://www.irccloud.com/chat/login", headers, body)
 	if err != nil {
 		panic(err)
 	}
+	
+
 	respBody, err = ioutil.ReadAll(resp.Body)
-
 	if err != nil {
-		panic(err.Error())
+		panic(err)
 	}
-
 	json.Unmarshal(respBody, &data)
 
 	err = nil
