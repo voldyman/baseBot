@@ -13,7 +13,7 @@ you first need to get the websocket module
 
 then clone this repo and cd to the code dir and use
 
-    $ go build baseBot.go
+    $ go build baseBot.go http_helper.go
     $ ./baseBot --email='yourEmail@here.info' --password='*****' --debug=true
 
 ###License
