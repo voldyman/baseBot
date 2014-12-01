@@ -56,6 +56,7 @@ func getSession(email, password string) (session string, err error) {
 	headers := make(http.Header)
 	headers.Add("x-auth-formtoken", data.Token)
 	headers.Add("User-Agent", "ninja")
+	headers.Add("Content-Type", "x-www-form-urlencoded")
 
 	resp, err = post("https://www.irccloud.com/chat/login", headers, body)
 	if err != nil {
