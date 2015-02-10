@@ -34,19 +34,28 @@ type Config struct {
 
 var config Config
 
-func getSession(email, password string) (session string, err error) {
+func getAuthToken() (data IRCCResponse, err error) {
 	resp, err := http.Post("https://www.irccloud.com/chat/auth-formtoken", "", nil)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return
 	}
 	var data IRCCResponse
 	json.Unmarshal(respBody, &data)
-	
+
+	return
+}
+
+func getSession(email, password string) (session string, err error) {
+	data, err := getAuthToken()
+	if err != nil {
+		return
+	}
+
 	body := url.Values{}
 	
 	body.Add("email", email)
@@ -60,13 +69,12 @@ func getSession(email, password string) (session string, err error) {
 
 	resp, err = post("https://www.irccloud.com/chat/login", headers, body)
 	if err != nil {
-		panic(err)
+		return
 	}
 	
-
 	respBody, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return
 	}
 	json.Unmarshal(respBody, &data)
 
@@ -78,18 +86,16 @@ func getSession(email, password string) (session string, err error) {
 	return data.Session, err
 }
 
-func irccConfig(sessionKey string) (*websocket.Config, error) {
+func irccConfig(sessionKey string) (config *websocket.Config, err error) {
 	config, err := websocket.NewConfig("wss://www.irccloud.com:443",
 		"https://www.irccloud.com")
 	if err != nil {
-		goto Error
+		return
 	}
+
 	config.Header.Add("Cookie", "session="+sessionKey)
 	config.Header.Add("User-Agent", "ninja")
 
-	return config, nil
-Error:
-	return config, err
 }
 
 func connectServerWS(key string, handler ResponseHandler) {
