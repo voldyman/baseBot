@@ -165,6 +165,7 @@ ManageError:
 		start(username, password, debug, tries-1)
 	} else {
 		fmt.Println("Gave up reattempting")
+		fmt.Println("Last error", err.Error())
 	}
 }
 
