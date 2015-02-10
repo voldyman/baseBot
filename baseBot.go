@@ -44,7 +44,6 @@ func getAuthToken() (data IRCCResponse, err error) {
 	if err != nil {
 		return
 	}
-	var data IRCCResponse
 	json.Unmarshal(respBody, &data)
 
 	return
@@ -67,12 +66,12 @@ func getSession(email, password string) (session string, err error) {
 	headers.Add("User-Agent", "ninja")
 	headers.Add("Content-Type", "x-www-form-urlencoded")
 
-	resp, err = post("https://www.irccloud.com/chat/login", headers, body)
+	resp, err := post("https://www.irccloud.com/chat/login", headers, body)
 	if err != nil {
 		return
 	}
 	
-	respBody, err = ioutil.ReadAll(resp.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
 	}
@@ -87,7 +86,7 @@ func getSession(email, password string) (session string, err error) {
 }
 
 func irccConfig(sessionKey string) (config *websocket.Config, err error) {
-	config, err := websocket.NewConfig("wss://www.irccloud.com:443",
+	config, err = websocket.NewConfig("wss://www.irccloud.com:443",
 		"https://www.irccloud.com")
 	if err != nil {
 		return
@@ -95,13 +94,13 @@ func irccConfig(sessionKey string) (config *websocket.Config, err error) {
 
 	config.Header.Add("Cookie", "session="+sessionKey)
 	config.Header.Add("User-Agent", "ninja")
-
+	return
 }
 
-func connectServerWS(key string, handler ResponseHandler) {
+func connectServerWS(key string, handler ResponseHandler) (err error){
 	config, err := irccConfig(key)
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	conn, err := websocket.DialConfig(config)
@@ -110,9 +109,9 @@ func connectServerWS(key string, handler ResponseHandler) {
 	}
 	var msg string
 	for {
-		err := websocket.Message.Receive(conn, &msg)
+		err = websocket.Message.Receive(conn, &msg)
 		if err != nil {
-			panic(err)
+			return
 		} else {
 			handler(msg)
 		}
@@ -146,6 +145,29 @@ func visitURL(url string) {
 	}
 }
 
+func start(username, password string, debug bool, tries int) {
+	key, err := getSession(username, password)
+	if err != nil {
+		goto ManageError
+	}
+
+	config = Config{key, debug}
+
+	err = connectServerWS(key, responseHandler)
+	if err != nil {
+		goto ManageError
+	}
+
+	return
+ManageError:
+	if (tries > 0) {
+		fmt.Println("Attempt number", tries)
+		start(username, password, debug, tries-1)
+	} else {
+		fmt.Println("Gave up reattempting")
+	}
+}
+
 func main() {
 	email := flag.String("email", "", "IRCCloud email")
 	password := flag.String("password", "", "IRCCloud password")
@@ -165,12 +187,6 @@ func main() {
 		*password = string(line)
 	}
 
-	key, err := getSession(*email, *password)
-	if err != nil {
-		panic(err)
-	}
-
-	config = Config{key, *debug}
-
-	connectServerWS(key, responseHandler)
+	// try reconnecting 5 times
+	start(*email, *password, *debug, 5)
 }
