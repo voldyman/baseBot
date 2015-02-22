@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"code.google.com/p/go.net/websocket"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -11,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+
+	"code.google.com/p/go.net/websocket"
 )
 
 type ResponseHandler func(string)
@@ -56,7 +57,7 @@ func getSession(email, password string) (session string, err error) {
 	}
 
 	body := url.Values{}
-	
+
 	body.Add("email", email)
 	body.Add("password", password)
 	body.Add("token", data.Token)
@@ -70,7 +71,7 @@ func getSession(email, password string) (session string, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
@@ -97,7 +98,7 @@ func irccConfig(sessionKey string) (config *websocket.Config, err error) {
 	return
 }
 
-func connectServerWS(key string, handler ResponseHandler) (err error){
+func connectServerWS(key string, handler ResponseHandler) (err error) {
 	config, err := irccConfig(key)
 	if err != nil {
 		return
@@ -160,7 +161,7 @@ func start(username, password string, debug bool, tries int) {
 
 	return
 ManageError:
-	if (tries > 0) {
+	if tries > 0 {
 		fmt.Println("Attempt number", tries)
 		start(username, password, debug, tries-1)
 	} else {
