@@ -174,6 +174,7 @@ func main() {
 	email := flag.String("email", "", "IRCCloud email")
 	password := flag.String("password", "", "IRCCloud password")
 	debug := flag.Bool("debug", false, "Print the responses")
+	attempts := flag.Int("attempts", 5, "Number of attempts to make when disconnected from server")
 
 	flag.Parse()
 
@@ -189,6 +190,6 @@ func main() {
 		*password = string(line)
 	}
 
-	// try reconnecting 5 times
-	start(*email, *password, *debug, 5)
+	// try reconnecting 5 or specified times
+	start(*email, *password, *debug, *attempts)
 }
