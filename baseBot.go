@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -9,9 +8,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 
 	"code.google.com/p/go.net/websocket"
+	"github.com/howeyc/gopass"
 )
 
 type ResponseHandler func(string)
@@ -185,9 +184,7 @@ func main() {
 
 	if *password == "" {
 		fmt.Print("Password:")
-		bio := bufio.NewReader(os.Stdin)
-		line, _, _ := bio.ReadLine()
-		*password = string(line)
+		*password = string(gopass.GetPasswd())
 	}
 
 	// try reconnecting 5 or specified times
