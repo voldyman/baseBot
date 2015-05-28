@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"code.google.com/p/go.net/websocket"
 	"github.com/howeyc/gopass"
+	"golang.org/x/net/websocket"
 )
 
 type ResponseHandler func(string)
@@ -105,7 +105,7 @@ func connectServerWS(key string, handler ResponseHandler) (err error) {
 
 	conn, err := websocket.DialConfig(config)
 	if err != nil {
-		panic(err.Error())
+		return
 	}
 	var msg string
 	for {
@@ -161,6 +161,7 @@ func start(username, password string, debug bool, tries int) {
 	return
 ManageError:
 	if tries > 0 {
+		fmt.Println("Error:", err.Error())
 		fmt.Println("Attempt number", tries)
 		start(username, password, debug, tries-1)
 	} else {
