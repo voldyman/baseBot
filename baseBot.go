@@ -63,7 +63,7 @@ func getSession(email, password string) (session string, err error) {
 
 	headers := make(http.Header)
 	headers.Add("x-auth-formtoken", data.Token)
-	headers.Add("User-Agent", "ninja")
+	headers.Add("User-Agent", "fucking-ninja")
 	headers.Add("Content-Type", "x-www-form-urlencoded")
 
 	resp, err := post("https://www.irccloud.com/chat/login", headers, body)
@@ -86,7 +86,7 @@ func getSession(email, password string) (session string, err error) {
 }
 
 func irccConfig(sessionKey string) (config *websocket.Config, err error) {
-	config, err = websocket.NewConfig("wss://www.irccloud.com:443",
+	config, err = websocket.NewConfig("wss://www.irccloud.com/",
 		"https://www.irccloud.com")
 	if err != nil {
 		return
