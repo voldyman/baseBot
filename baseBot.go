@@ -86,12 +86,13 @@ func getSession(email, password string) (session string, err error) {
 }
 
 func irccConfig(sessionKey string) (config *websocket.Config, err error) {
-	config, err = websocket.NewConfig("wss://www.irccloud.com/",
+	config, err = websocket.NewConfig("wss://api.irccloud.com/",
 		"https://www.irccloud.com")
 	if err != nil {
 		return
 	}
 
+	config.Header.Add("Origin", "https://api.irccloud.com")
 	config.Header.Add("Cookie", "session="+sessionKey)
 	config.Header.Add("User-Agent", "ninja")
 	return
